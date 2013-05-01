@@ -45,4 +45,12 @@ In this particular case (_there is a super fast cache of a full response that ca
 Run `npm install` before attempting to run
 
 
+# Special Note Regarding My Marshal Implementation
+
+I wrote it because it seems like a lot of other folks need node.js to read Ruby's Marshal format.  This is not heavily tested, so if you use it, use it with caution.  It should work for `String` (_only ascii or utf8 strings_), `FixNum`, `true`, `false`, `Hash`, `Array`, `RegExp` (_mostly_) and user defined objects (_sort of_). You are encouraged to read the source. It _should_ blow up if it can't deserialize something, it will not ignore errors.
+
+`Marshal.load(buffer)` requires one argument, a `Buffer` object.  If you need the returned strings returned as buffers (in cases where the strings contain binary information and text encoding would fuck it all up), then a second argument may be provided, a hash with `strings_as_buffers` set to `true`.
+
+
+
 
