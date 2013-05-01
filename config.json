@@ -1,0 +1,10 @@
+{
+  "port": 1337,
+  "memcache": {
+    "servers" : "127.0.0.1:11211",
+    "poolSize" : 2
+  },
+  "endpoints": [
+    { "host": "localhost", "port": 3000 }
+  ]
+}

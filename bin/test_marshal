@@ -1,0 +1,30 @@
+#!/usr/bin/env node
+require("coffee-script");
+var fs = require("fs");
+var path = require('path');
+var Marshal = require(path.join(__dirname, '..', 'lib', 'marshal'));
+
+var basedir = path.join(__dirname, "..", "test");
+var files = fs.readdirSync(basedir);
+var position = 0;
+for(var i = 0; i < files.length; i++){
+  if(files[i].indexOf(".txt") > - 1){
+    var content = fs.readFileSync(path.join(basedir, files[i]));
+    position = 0;
+    while(position < content.length){
+      var marshal_length = content.readUInt32LE(position);
+      var payload = content.slice(position + 4, position + 4 + marshal_length);
+      var end = position + 1 + marshal_length;
+      for(; content[end] != 13 && end < content.length; end ++);
+      var description = content.slice(position + 4 + marshal_length, end);
+      position = end + 1;
+      var value = Marshal.load(payload)
+      console.log(description.toString(), "=", value);
+      // var marshal_content = content[j].substr(4, marshal_length);
+      // var description = content[j].substring(4+marshal_length);
+      // var value = Marshal.load(marshal_content);
+      // console.log(description, value);
+    }
+  }
+
+}

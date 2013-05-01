@@ -1,0 +1,14 @@
+#!/usr/bin/env node
+require("coffee-script");
+var fs = require("fs");
+var path = require('path');
+var Cacheabled = require(path.join(__dirname, '..', 'lib', 'cacheabled'));
+var file = process.argv[2] || "config.json";
+if(!fs.existsSync(file)){
+  throw new Error("File " + file + " does not exist, can't load configuration")
+} else {
+  console.log("Starting with ", file);
+  var contents = JSON.parse(fs.readFileSync(file));
+  new Cacheabled(contents).start();
+}
+

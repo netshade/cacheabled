@@ -1,0 +1,20 @@
+{
+  "name": "cacheabled",
+  "preferGlobal": true,
+  "version": "0.0.1",
+  "author": "Chris Zelenak <chris@fastestforward.com>",
+  "description": "evented fast-responder proxy for cacheabled",
+  "bin": {
+    "cachabled": "./bin/cachabled"
+  },
+  "main": "./lib/cacheabled",
+  "dependencies": {
+    "coffee-script": ">= 1.6.2",
+    "memjs-concurrent": ">= 0.4.2",
+    "cityhash": ">= 0.0.3",
+    "http-proxy": ">= 0.10.2"
+  },
+  "engines": {
+    "node": ">= 0.10.5"
+  }
+}
