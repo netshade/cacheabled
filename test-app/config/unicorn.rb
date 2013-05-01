@@ -2,6 +2,8 @@
 worker_processes 6
 timeout 30
 preload_app true
+stdout_path "/dev/null"
+stderr_path "/dev/null"
 
 before_fork do |server, worker|
 
