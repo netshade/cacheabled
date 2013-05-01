@@ -3,7 +3,7 @@ class WelcomeController < ApplicationController
   def index
     sleep(rand())
     response_cache() do
-      render text: ("Some text" * 2048)
+      render text: File.read(File.join(Rails.root, "public", "thechivery.html"))
     end
   end
 
