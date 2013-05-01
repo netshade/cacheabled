@@ -6,5 +6,6 @@
   },
   "endpoints": [
     { "host": "localhost", "port": 3000 }
-  ]
+  ],
+  "verbose": false
 }

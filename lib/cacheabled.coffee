@@ -7,11 +7,6 @@ HttpProxy = require("http-proxy")
 http = require("http")
 url = require('url')
 
-require('nodetime').profile({
-    accountKey: '989753323a84d8c01fb9c17bbff1fd4a24ac1137',
-    appName: 'cacheabled'
-})
-
 class Server
 
   constructor:(@config = {})->
@@ -23,8 +18,12 @@ class Server
       @clients.push(MemJS.Client.create(@config?.memcache?.servers || ""))
     @request_backlog = @config.request_backlog || 65536
     @bind_address = @config.bind_address || "0.0.0.0"
+    @verbose = @config.verbose
     @port = @config.port || 1337
     @proxy = new HttpProxy.RoutingProxy()
+
+  log:()=>
+    console.log.apply(console, arguments) if @verbose
 
   start:()=>
     @server = http.createServer(@_httpListen)
@@ -52,12 +51,12 @@ class Server
 
   forwardToEndpoint:(request, response)=>
     endpoint = @randomEndpoint()
-    console.log("Forwarding #{request.url} to endpoint #{endpoint.host}:#{endpoint.port}")
+    @log("Forwarding #{request.url} to endpoint #{endpoint.host}:#{endpoint.port}")
     @proxy.proxyRequest(request, response, endpoint)
 
   sendResponse:(payload, request, response)=>
     if payload.__ruby_class__ == ':ActiveSupport::Cache::Entry'
-      payload = Marshal.load(new Buffer(payload.value), { "strings_as_buffers": true })
+      payload = Marshal.load(new Buffer(payload.value), { "strings_as_buffers": true, "silent": !@verbose })
     [status, content_type, body, timestamp, location] = payload
     gzip = String(request.headers["accept-encoding"]).indexOf("gzip") >= 0
     if !gzip
@@ -108,7 +107,7 @@ class Server
     key = @hashKey(request.url)
     if request.headers["if-none-match"]
       if key == request.headers["if-none-match"]
-        console.log("Cache hit: client")
+        @log("Cache hit: client")
         response.writeHead(304, @responseHeaders(
           "cacheable-miss": false,
           "cacheable-store": "client",
@@ -116,15 +115,15 @@ class Server
         response.end("")
         return
     d = new Date().getTime()
-    console.log("Getting memcache", request.url, key)
+    @log("Getting memcache", request.url, key)
     @randomMemcacheClient().get(key, (err, result, extras)=>
-      console.log("Memcache response, took (ms)", new Date().getTime() - d)
+      @log("Memcache response, took (ms)", new Date().getTime() - d)
       if err
         @forwardToEndpoint(request, response)
       else
         try
-          console.log("Server hit", key)
-          payload = Marshal.load(result, { "strings_as_buffers": true })
+          @log("Server hit", key)
+          payload = Marshal.load(result, { "strings_as_buffers": true, "silent": !@verbose })
           @sendResponse(payload, request, response)
         catch err
           console.log("Error serving from cache", key, err)

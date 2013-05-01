@@ -214,7 +214,7 @@ class Marshal
       -1
     position += 1
     [len, offset] = @_decodeInt(str, position, context)
-    console.log("WARNING: BigNum not implemented yet")
+    console.log("WARNING: BigNum not implemented yet") unless context.silent
     [0, offset + 1]
 
   @load:(buffer, options = {})->
