@@ -8,13 +8,13 @@ I was surprised to learn that they were doing this inside the Rails stack (well,
 
 So I wrote a proof of concept node.js app that does just that. It would sit in front of a unicorn process, and serve directly from cache when relevant; otherwise, it proxies the request to the unicorn instance, and the cacheable gem's normal behavior can resume.
 
-As expected, the speedup (_local benchmarking, I know, I know_) is drastic.  For a trivial URL, requests can be served up to 140x faster simply by exploiting concurrent reqeust handling and memcache fetching in node.js.  EventMachine could be used to do something quite similar (though likely with slightly less of a speed up).
+As expected, the speedup (/local benchmarking, I know, I know/) is drastic.  For a trivial URL, requests can be served up to 140x faster simply by exploiting concurrent reqeust handling and memcache fetching in node.js.  EventMachine could be used to do something quite similar (though likely with slightly less of a speed up).
 
-This is not a bolt in speedup.  Cacheable has enough assumptions about keys, versions and stale data in it that there would need to be some work such that cache info can be shared outside the process. Also, Cacheable uses Marshal to serialize data; I've written a toy implementation of `Marshal#load` in JavaScript, but really, something not Ruby specific would be more desirable (_JSON, really, since most of node.js' MemCache clients seem to think that all MemCache data is UTF-8 strings_).
+This is not a bolt in speedup.  Cacheable has enough assumptions about keys, versions and stale data in it that there would need to be some work such that cache info can be shared outside the process. Also, Cacheable uses Marshal to serialize data; I've written a toy implementation of `Marshal#load` in JavaScript, but really, something not Ruby specific would be more desirable (/JSON, really, since most of node.js' MemCache clients seem to think that all MemCache data is UTF-8 strings/).
 
 # Why
 
-Well, really, if you're caching the effective full response, there's no reason to ever hit the stack or occupy a worker.  Getting the Memcache data closer to the Nginx response will maximize availability of the app. On my machine (_I KNOW ALREADY, SHEESH_), which is a 2011 MBP Pro, 2.3Ghz Core i7:
+Well, really, if you're caching the effective full response, there's no reason to ever hit the stack or occupy a worker.  Getting the Memcache data closer to the Nginx response will maximize availability of the app. On my machine (/I KNOW ALREADY, SHEESH/), which is a 2011 MBP Pro, 2.3Ghz Core i7:
 
 Rails (Unicorn, 7 workers), time to complete:
 
@@ -34,7 +34,7 @@ And less servers is more money.
 
 # Summary
 
-In this particular case (_there is a super fast cache of a full response that can be inferred via URL paramters_), concurrency is a dead easy win. Thanks for the talk Shopify people, you have a great product, and it was cool to see what you're doing to scale out. Hope this is useful to you in some fashion.
+In this particular case (/there is a super fast cache of a full response that can be inferred via URL paramters/), concurrency is a dead easy win. Thanks for the talk Shopify people, you have a great product, and it was cool to see what you're doing to scale out. Hope this is useful to you in some fashion.
 
 # Contents
 
@@ -47,7 +47,7 @@ Run `npm install` before attempting to run
 
 # Special Note Regarding My Marshal Implementation
 
-I wrote it because it seems like a lot of other folks need node.js to read Ruby's Marshal format.  This is not heavily tested, so if you use it, use it with caution.  It should work for `String` (_only ascii or utf8 strings_), `FixNum`, `true`, `false`, `Hash`, `Array`, `RegExp` (_mostly_) and user defined objects (_sort of_). You are encouraged to read the source. It _should_ blow up if it can't deserialize something, it will not ignore errors.
+I wrote it because it seems like a lot of other folks need node.js to read Ruby's Marshal format.  This is not heavily tested, so if you use it, use it with caution.  It should work for `String` (/only ascii or utf8 strings/), `FixNum`, `true`, `false`, `Hash`, `Array`, `RegExp` (/mostly/) and user defined objects (/sort of/). You are encouraged to read the source. It /should/ blow up if it can't deserialize something, it will not ignore errors.
 
 `Marshal.load(buffer)` requires one argument, a `Buffer` object.  If you need the returned strings returned as buffers (in cases where the strings contain binary information and text encoding would fuck it all up), then a second argument may be provided, a hash with `strings_as_buffers` set to `true`.
 
