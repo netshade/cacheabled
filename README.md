@@ -17,14 +17,16 @@ This is not a bolt in speedup.  Cacheable has enough assumptions about keys, ver
 Well, really, if you're caching the effective full response, there's no reason to ever hit the stack or occupy a worker.  Getting the Memcache data closer to the Nginx response will maximize availability of the app. On my machine (_I KNOW ALREADY, SHEESH_), which is a 2011 MBP Pro, 2.3Ghz Core i7:
 
 Rails (Unicorn, 7 workers), time to complete:
-100 Requests: 9.16sec
-1,000 Requests: 88.07sec
-10,000 Requests: 869.82sec
+
+ * 100 Requests: 9.16sec
+ * 1,000 Requests: 88.07sec
+ * 10,000 Requests: 869.82sec
 
 Node (1 process), time to complete:
-100 Requests: 0.13sec (70x)
-1,000 Requests: 0.72sec (122x)
-10,000 Requests: 6.20sec (140x)
+
+ * 100 Requests: 0.13sec (70x)
+ * 1,000 Requests: 0.72sec (122x)
+ * 10,000 Requests: 6.20sec (140x)
 
 I'm not claiming these increases are authoritative.  Test on production hardware, test over time, test with the implementation that actually respects the caching logic.  There will be slowdown, but the basic principle is, there is a very, very large performance optimization that you could make by writing something (in any language) that worked to get your cached responses to the browser faster and avoid the slow elephant in the room (synchronous Ruby).
 
